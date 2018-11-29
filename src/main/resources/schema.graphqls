@@ -1,0 +1,19 @@
+type StockAttribute {
+  id: ID!
+  ticker: String!
+  name: String!
+}
+
+type Query {
+	allStockAttributes: [StockAttribute]
+}
+
+type Mutation {
+  modifyStockAttribute(ticker: String!, name: String!): StockAttribute
+}
+
+schema {
+	query: Query
+	mutation: Mutation
+}
+
