@@ -20,6 +20,7 @@ public class StockAttribute {
   }
 
   public String getId() {
+    System.out.println("getId called");
     return id;
   }
 

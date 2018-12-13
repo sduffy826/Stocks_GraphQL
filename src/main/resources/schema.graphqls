@@ -4,8 +4,21 @@ type StockAttribute {
   name: String!
 }
 
+type StockDateAndPrice {
+  id: ID!
+  ticker: String!
+  stockDate: String!
+  open: String!
+  high: String!
+  low: String!
+  close: String!
+  adjustedClose: String!
+  volume: String!  
+}
+
 type Query {
 	allStockAttributes: [StockAttribute]
+	allStockDateAndPrice: [StockDateAndPrice]
 }
 
 type Mutation {

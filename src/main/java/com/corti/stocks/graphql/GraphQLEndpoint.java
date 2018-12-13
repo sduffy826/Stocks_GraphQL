@@ -13,10 +13,12 @@ import graphql.schema.GraphQLSchema;
 public class GraphQLEndpoint extends SimpleGraphQLServlet {
   private static final boolean debugIt = true;
   private static final StockAttributeRepository stockAttributeRepository;
+  private static final StockDateAndPriceRepository stockDateAndPriceRepository;
   
   static {
     MongoDatabase mongoDb = new MongoClient().getDatabase("stock");
     stockAttributeRepository = new StockAttributeRepository(mongoDb.getCollection("stocks"));
+    stockDateAndPriceRepository = new StockDateAndPriceRepository(mongoDb.getCollection("stocksDatePrice"));
   }
   
   public GraphQLEndpoint() {
@@ -28,7 +30,8 @@ public class GraphQLEndpoint extends SimpleGraphQLServlet {
     if (debugIt) System.out.println("In GraphQLSchema->buildSchema()");
     return SchemaParser.newParser()
              .file("schema.graphqls")
-             .resolvers(new Query(stockAttributeRepository), new Mutation(stockAttributeRepository))
+             .resolvers(new Query(stockAttributeRepository,stockDateAndPriceRepository), 
+                        new Mutation(stockAttributeRepository,stockDateAndPriceRepository))
              .build()
              .makeExecutableSchema();
   }

@@ -1,6 +1,5 @@
 package com.corti.stocks.graphql;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +16,6 @@ import static com.mongodb.client.model.Filters.regex;
 public class StockAttributeRepository {
   private final MongoCollection<Document> repo;
   private static final boolean debugIt = true; 
-    
   
   public StockAttributeRepository(MongoCollection<Document> repo) {
     this.repo = repo;
@@ -79,14 +77,12 @@ public class StockAttributeRepository {
       repo.deleteOne(doc);
       if (debugIt) System.out.println("  deleted: " + doc.toString());
     }
-  }
-  
+  }  
   
   private StockAttribute stockAttribute(Document doc) {
     return new StockAttribute(
                     doc.get("_id").toString(),
                     doc.getString("ticker"),
                     doc.getString("name"));
-  }
-  
+  }  
 }
