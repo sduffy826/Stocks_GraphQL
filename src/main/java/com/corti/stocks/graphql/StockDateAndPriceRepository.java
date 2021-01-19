@@ -1,5 +1,6 @@
 package com.corti.stocks.graphql;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,11 +42,8 @@ public class StockDateAndPriceRepository {
     //DBCursor cursor = collection.find(andQuery);
     //while (cursor.hasNext()) {
     //    System.out.println(cursor.next());
-    //}
-   
-    
+    //}    
     return repo.find(andQuery).first();
-
   }
   
   public StockDateAndPrice findById(String id) {
@@ -69,39 +67,33 @@ public class StockDateAndPriceRepository {
   
   public void modifyRec(StockDateAndPrice stockDateAndPrice) {
     if (debugIt) System.out.println("In StockDateAndPriceRepository->modifyRec(stockDateAndPrice)");
-    Document doc = getByTickerAndDate(stockDateAndPrice.getTicker(), stockDateAndPrice.getStockDate().toString());
-    if (doc == null) {
-      doc = new Document();
-      doc.append("ticker", stockDateAndPrice.getTicker());
-      doc.append("stockDate",  stockDateAndPrice.getStockDate().toString());
-      doc.append("open",  stockDateAndPrice.getOpen());
-      doc.append("high",  stockDateAndPrice.getHigh());
-      doc.append("low",  stockDateAndPrice.getLow());
-      doc.append("close",  stockDateAndPrice.getClose());      
-      doc.append("adjustedClose",  stockDateAndPrice.getAdjustedClose());      
-      doc.append("volume",  stockDateAndPrice.getVolume());
-      repo.insertOne(doc);
+    Document newDoc = getDocument(stockDateAndPrice);
+    Document existingDoc = getByTickerAndDate(stockDateAndPrice.getTicker(), stockDateAndPrice.getStockDate().toString());
+    if (existingDoc == null) {
+      repo.insertOne(newDoc);
       if (debugIt) System.out.println("In StockAttributeRepository->modifyRec-insertOne");
     }
-    else {
-      // It's an update, create document with fields to update, a document with the operation
-//      Document docWithUpdatedFields = new Document("name",stockAttribute.getName());
- //     Document updateOperation = new Document("$set", docWithUpdatedFields);
-      // Perform update, the 'doc' is the filter doc (i.e. search)
- //     repo.updateOne(doc, updateOperation);
-  //    if (debugIt) System.out.println("In StockAttributeRepository->modifyRec-updateOne");
+    else {      
+      // Replace the document with the id by the new document
+      newDoc.remove("_id"); // Just make sure it doesn't have an id... we don't want this value changed inadvertantly
+      repo.replaceOne(eq("_id", existingDoc.get("_id")), newDoc);
+      if (debugIt) System.out.println("In StockAttributeRepository->modifyRec-replaceOne");      
     }
   }
   
-  public void deleteRec(String ticker, String stockDate) {
+  public boolean deleteRec(String ticker, String stockDate) {
     if (debugIt) System.out.println("In StockAttributeRepository->deleteRec(ticker)");
     Document doc = getByTickerAndDate(ticker, stockDate);
     if (doc != null) {
       repo.deleteOne(doc);
       if (debugIt) System.out.println("  deleted: " + doc.toString());
+      return true;
     }
+    else
+      return false;
   }  
   
+  // Convert document into StockDateAndPrice object
   private StockDateAndPrice stockDateAndPrice(Document doc) {
     System.out.println("In stockDateAndPrice: " + doc.get("_id").toString());
     return new StockDateAndPrice(
@@ -114,6 +106,24 @@ public class StockDateAndPriceRepository {
                     doc.getString("close"),
                     doc.getString("adjustedClose"),
                     doc.getString("volume"));
+  }  
+  
+  // Convert the StockDateAndPrice object into json document
+  private Document getDocument(StockDateAndPrice stockDateAndPrice) {
+    Document doc = new Document();
+    
+    if (stockDateAndPrice.getId() != null) doc.append("id",  stockDateAndPrice.getId());
+        
+    doc.append("ticker", stockDateAndPrice.getTicker());
+    doc.append("stockDate",  stockDateAndPrice.getStockDate().toString());
+    doc.append("open",  stockDateAndPrice.getOpen());
+    doc.append("high",  stockDateAndPrice.getHigh());
+    doc.append("low",  stockDateAndPrice.getLow());
+    doc.append("close",  stockDateAndPrice.getClose());      
+    doc.append("adjustedClose",  stockDateAndPrice.getAdjustedClose());      
+    doc.append("volume",  stockDateAndPrice.getVolume());
+    return doc;
   }
+  
   
 }

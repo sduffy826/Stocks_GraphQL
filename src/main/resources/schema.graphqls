@@ -8,12 +8,12 @@ type StockDateAndPrice {
   id: ID!
   ticker: String!
   stockDate: String!
-  open: String!
-  high: String!
-  low: String!
-  close: String!
-  adjustedClose: String!
-  volume: String!  
+  open: Float!
+  high: Float!
+  low: Float!
+  close: Float!
+  adjustedClose: Float!
+  volume: Int!  
 }
 
 type Query {
@@ -22,7 +22,9 @@ type Query {
 }
 
 type Mutation {
-  modifyStockAttribute(ticker: String!, name: String!): StockAttribute
+  modifyStockAttribute(ticker: String!, name: String!): StockAttribute  
+  modifyStockDateAndPrice(ticker: String!, stockDate: String!, open: Float, high: Float, low: Float, close: Float, adjustedClose: Float, volume: Int) : StockDateAndPrice
+  deleteStockDateAndPrice(ticker: String!, stockDate: String!): String
 }
 
 schema {
